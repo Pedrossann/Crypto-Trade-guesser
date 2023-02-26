@@ -7,25 +7,27 @@ Calculates moving avarage.
 
 import: count = sets from how manz variables it should calculate avarage
 """
-class MA():
+
+
+class MA:
     def __init__(self, count):
         self.count = count
         self.position = 0
         self.total = 0.0
         self.ma = 0
 
-# Returns moving avarage in int _______________________________________________ #
+    # Returns moving avarage in int _______________________________________________ #
     def __int__(self):
         return int(self.ma)
 
-# takes the last "number" of lists in "price_list" and makes moving avarage ____ #
+    # takes the last "number" of lists in "price_list" and makes moving avarage ____ #
     def avarage(self, sec, price_list):
         if sec > self.count:
             for self.start in range(self.count):
-                self.position = -self.start -1
+                self.position = -self.start - 1
                 self.list = price_list[self.position]
                 self.total += self.list[0]
-            self.ma = int(int(self.total)/self.count)
+            self.ma = int(int(self.total) / self.count)
             self.total = 0
 
     def update(self, sec, price_list):
@@ -35,7 +37,9 @@ class MA():
 """
 Calculates short minimum in last "count" seconds
 """
-class Min():
+
+
+class Min:
     def __init__(self, count):
         self.count = count
         self.min = [1000000, 0]
@@ -46,7 +50,7 @@ class Min():
         if (self.last_price[1] - self.min[1]) >= self.count:
             self.min = [1000000, self.last_price[1] - 100000]
         for num in range(self.count):
-            price = price_list[-num -1]
+            price = price_list[-num - 1]
             if price[0] < self.min[0]:
                 self.min = price
         return self.min
@@ -58,7 +62,9 @@ class Min():
 """
 Holds all the calculation about trading. Separate bools (self.price_min_check, etc) anables for trade to happen.
 """
-class Trade():
+
+
+class Trade:
     def __init__(self, base_bit, trade_delay, delay_diff):
         self.trade_time = 30
         self.trading = False
@@ -68,7 +74,7 @@ class Trade():
         self.lose_streak = 0
 
         self.lose_streak_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        self.win_streak_list = [0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.win_streak_list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         self.max_lose_streak = 0
 
         self.delay_diff = delay_diff
@@ -77,7 +83,7 @@ class Trade():
         self.total_profit = 0
         self.max_investment = 0
 
-# Creates minimal price in last 10 and 50 seconds and anables price_min_check __ #
+    # Creates minimal price in last 10 and 50 seconds and anables price_min_check __ #
 
     def min_check(self, short, long):
         if int(short[0]) == int(long[0]):
@@ -85,14 +91,14 @@ class Trade():
         else:
             self.price_min_check = True
 
-# After inputing moving avarages anbles price_ma_check for trading _____________ #
+    # After inputing moving avarages anbles price_ma_check for trading _____________ #
     def ma_check(self, ma_0, ma_1, ma_2):
         if ma_0 == ma_1 and (ma_0 + 7) < ma_2:
             self.price_ma_check = True
         else:
             self.price_ma_check = False
 
-# If all conditions are met starts trading _____________________________________ #
+    # If all conditions are met starts trading _____________________________________ #
     def start_trade(self):
         if self.trading == False:
             if self.price_ma_check:
@@ -100,7 +106,7 @@ class Trade():
                     self.trading = True
                     self.start_trade_price = self.last_price
 
-# Counts 30 sec of trading and then stops the trading __________________________ #
+    # Counts 30 sec of trading and then stops the trading __________________________ #
     def during_trading(self):
         if self.trading == True:
             self.trading_sec_counter += 1
@@ -115,7 +121,7 @@ class Trade():
                 self.end_trade_price = self.last_price
                 self.end_trade_check()
 
-# Counts succesfull trades _____________________________________________________ #
+    # Counts succesfull trades _____________________________________________________ #
     def end_trade_check(self):
         self.trades += 1
         if self.end_trade_price[0] > self.start_trade_price[0]:
@@ -128,22 +134,23 @@ class Trade():
         else:
             self.lose_streak += 1
 
-        self.trade_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.start_trade_price[1]))
-        self.percent = round(self.success_trades/self.trades, 2)*100
+        self.trade_time = time.strftime(
+            "%Y-%m-%d %H:%M:%S", time.localtime(self.start_trade_price[1])
+        )
+        self.percent = round(self.success_trades / self.trades, 2) * 100
 
-# Calsulates total profit and max investment ___________________________________ #
+    # Calsulates total profit and max investment ___________________________________ #
     def total_profit_calculation(self):
         cost = self.base_bit
         if self.lose_streak == 0:
             self.total_profit += 15
         else:
             for num in range(self.lose_streak):
-                cost = cost + cost*2
+                cost = cost + cost * 2
                 if cost > self.max_investment:
                     self.max_investment = cost
 
-
-# Updates all necessary functions ______________________________________________ #
+    # Updates all necessary functions ______________________________________________ #
     def update(self, price_list, ma_0, ma_1, ma_2, short, long):
         self.last_price = price_list[-1]
         self.ma_check(ma_0, ma_1, ma_2)
@@ -151,10 +158,13 @@ class Trade():
         self.start_trade()
         self.during_trading()
 
+
 """
 Saves data to excel
 """
-class ExcelSave():
+
+
+class ExcelSave:
     def __init__(self, column_name_list, start_column_list):
         self.data_list = []
         self.pd_excel = []
@@ -164,17 +174,24 @@ class ExcelSave():
         self.column_name_list = column_name_list
         self.start_col_list = start_column_list
 
-#Appends variables from list to different columns ______________________________ #
+    # Appends variables from list to different columns ______________________________ #
     def append_to_list(self, variable_list):
         for num in range(len(variable_list)):
             self.data_list[num].append(variable_list[num])
 
-#Writes data from lists to excel _______________________________________________ #
+    # Writes data from lists to excel _______________________________________________ #
     def DFrame(self):
         for num in range(len(self.data_list)):
-            self.pd_excel[num] = pd.DataFrame({f"{self.column_name_list[num]}": self.data_list[num]})
+            self.pd_excel[num] = pd.DataFrame(
+                {f"{self.column_name_list[num]}": self.data_list[num]}
+            )
 
-# Saves data to excel __________________________________________________________ #
+    # Saves data to excel __________________________________________________________ #
     def write(self, writer):
         for num in range(len(self.data_list)):
-            self.pd_excel[num].to_excel(writer, sheet_name='Trades', index=False, startcol=self.start_col_list[num])
+            self.pd_excel[num].to_excel(
+                writer,
+                sheet_name="Trades",
+                index=False,
+                startcol=self.start_col_list[num],
+            )
